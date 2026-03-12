@@ -5,10 +5,10 @@
 ## Sumário
 
 1. [Visão Geral](#visão-geral)
-2. [Mini Projeto 1 — Nome do Projeto](#mini-projeto-1)
-3. [Mini Projeto 2 — Nome do Projeto](#mini-projeto-2)
-4. [Mini Projeto 3 — Nome do Projeto](#mini-projeto-3)
-5. [Equipes Responsáveis](#equipes-responsáveis)
+2. [Mini Projeto 1 - Tela de carregamento com grafos](#mini-projeto-1)
+3. [Mini Projeto 2 - Nome do Projeto](#mini-projeto-2)
+4. [Mini Projeto 3 - Nome do Projeto](#mini-projeto-3)
+5. [Equipe Projeto 1 - ](#equipes-responsáveis)
 
 ---
 
@@ -39,7 +39,7 @@ Descreva o objetivo deste mini projeto, o problema que ele resolve e qual é o s
 
 ### Visualizações Geradas
 
-#### Visualização 1.1 — Nome da Visualização
+#### Visualização 1.1 - Tela de carregamento com grafos
 
 | Campo            | Detalhe                              |
 |------------------|--------------------------------------|
@@ -48,7 +48,7 @@ Descreva o objetivo deste mini projeto, o problema que ele resolve e qual é o s
 | **Ferramenta**   | Power BI / Tableau / Python / etc.   |
 | **Atualização**  | Diária / Semanal / Manual            |
 
-**Descrição:** Explique o que esta visualização mostra, quais métricas ou indicadores estão presentes e como ela deve ser interpretada.
+**Descrição:** Essa visualização detalha brevemente uma simulação de como o algoritmo está sendo implementado. Alocando os rastreadores (bolinhas  a esquerda) às suas respectivas logísticas (bolinhas no meio) e, por fim, às unidades de produção (bolinhas a direita).
 
 **Exemplo de uso:** Descreva um caso de uso prático desta visualização.
 
