@@ -25,7 +25,7 @@ Breve descrição do objetivo geral do projeto e como os três mini projetos se 
 
 ---
 
-## [Título do Mini Projeto 1]
+## Visualização de grafo em funcionamento para tela de carregamento
 
 ### Descrição
 
