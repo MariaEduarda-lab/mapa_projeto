@@ -59,7 +59,7 @@ Descreva o objetivo deste mini projeto, o problema que ele resolve e qual é o s
 | Campo            | Detalhe                              |
 |------------------|--------------------------------------|
 | **Tipo**         | Gráfico de linhas / Tabela / Heatmap |
-| **Fonte de dados** | Nome da base ou tabela utilizada   |
+| **Fonte de dados** | Nome da base ou tabela utilizada   |ver
 | **Ferramenta**   | Power BI / Tableau / Python / etc.   |
 | **Atualização**  | Diária / Semanal / Manual            |
 
