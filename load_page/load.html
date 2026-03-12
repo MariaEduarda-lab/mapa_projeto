@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Alocação Logística - 15 Segundos</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #0f0f0f; color: white; margin: 0; overflow: hidden; }
+        #chart { width: 100vw; height: 100vh; }
+        .column-label { font-size: 14px; font-weight: 300; fill: #666; text-transform: uppercase; letter-spacing: 4px; }
+        .link { fill: none; stroke: #2a2a2a; stroke-opacity: 0.5; stroke-width: 1px; }
+        .link.active { stroke: #fff; stroke-opacity: 0.8; stroke-width: 2px; filter: drop-shadow(0 0 3px #fff); }
+        .link.final-flow { stroke: #00ffcc; stroke-opacity: 1; filter: drop-shadow(0 0 10px #00ffcc); }
+        #controls { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 10; }
+        button { background: none; border: 1px solid #444; color: #aaa; padding: 12px 30px; border-radius: 30px; cursor: pointer; font-size: 12px; letter-spacing: 2px; transition: 0.4s; }
+        button:hover { border-color: #00ffcc; color: #00ffcc; box-shadow: 0 0 15px rgba(0,255,204,0.2); }
+        button:disabled { border-color: #222; color: #333; cursor: not-allowed; }
+        #status { margin-top: 15px; font-size: 11px; color: #666; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<div id="controls">
+    <button onclick="startSimulation()" id="btnStart">INICIAR ALOCAÇÃO</button>
+    <div id="status">SISTEMA EM ESPERA</div>
+</div>
+<div id="chart"></div>
+
+<script>
+const width = window.innerWidth;
+const height = window.innerHeight;
+const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const nodes = [];
+const links = [];
+const xStep = width / 4;
+
+const config = {
+    rasreadores: 3,
+    logistica: ["Avião", "Caminhão", "Brigadista"],
+    ups: 4
+};
+
+// Geração dos Nós
+for (let i = 0; i < config.rasreadores; i++) {
+    nodes.push({ id: `R${i}`, type: 'rasreador', x: xStep, y: height/2 - 100 + i * 100 });
+}
+
+config.logistica.forEach((tipo, i) => {
+    nodes.push({ id: tipo, type: 'logistica', label: tipo, x: xStep * 2, y: height/2 - 100 + i * 100 });
+    for (let j = 0; j < config.rasreadores; j++) {
+        links.push({ source: `R${j}`, target: tipo, type: 'r-l' });
+    }
+});
+
+for (let i = 0; i < config.ups; i++) {
+    const upId = `UP${i}`;
+    nodes.push({ id: upId, type: 'up', x: xStep * 3, y: height/2 - 150 + i * 100 });
+    config.logistica.forEach(tipo => {
+        if (tipo === "Brigadista" || Math.random() > 0.4) {
+            links.push({ source: tipo, target: upId, type: 'l-u' });
+        }
+    });
+}
+
+const svg = d3.select("#chart").append("svg").attr("width", width).attr("height", height);
+
+// Títulos das Colunas
+const colunas = [
+    { t: "rasreador", x: xStep },
+    { t: "Logística", x: xStep * 2 },
+    { t: "Unidade de Produção", x: xStep * 3 }
+];
+
+svg.selectAll(".column-label").data(colunas).enter().append("text")
+    .attr("class", "column-label").attr("x", d => d.x).attr("y", height/2 - 250)
+    .attr("text-anchor", "middle").text(d => d.t);
+
+const colorScale = d3.scaleOrdinal()
+    .domain(['rasreador', 'logistica', 'up'])
+    .range(['#0077ff', '#00ffcc', '#ff3366']);
+
+const linkElements = svg.append("g").selectAll("line").data(links).enter().append("line")
+    .attr("class", "link")
+    .attr("x1", d => nodes.find(n => n.id === (typeof d.source === "string" ? d.source : d.source.id)).x)
+    .attr("y1", d => nodes.find(n => n.id === (typeof d.source === "string" ? d.source : d.source.id)).y)
+    .attr("x2", d => nodes.find(n => n.id === (typeof d.target === "string" ? d.target : d.target.id)).x)
+    .attr("y2", d => nodes.find(n => n.id === (typeof d.target === "string" ? d.target : d.target.id)).y);
+
+const nodeElements = svg.append("g").selectAll("g").data(nodes).enter().append("g")
+    .attr("transform", d => `translate(${d.x},${d.y})`);
+
+nodeElements.append("circle")
+    .attr("r", 20)
+    .attr("fill", "#000")
+    .attr("stroke", d => colorScale(d.type))
+    .attr("stroke-width", 2);
+
+nodeElements.filter(d => d.type === 'logistica').append("text")
+    .attr("dy", 45).attr("text-anchor", "middle").attr("fill", "#fff")
+    .style("font-size", "10px").style("letter-spacing", "1px").text(d => d.label);
+
+async function startSimulation() {
+    const btn = document.getElementById('btnStart');
+    const status = document.getElementById('status');
+    btn.disabled = true;
+    
+    linkElements.classed("active final-flow", false).style("stroke-width", "1px");
+    status.innerText = "INICIANDO VARREDURA DE REDE (15s)...";
+
+    const linksRL = links.filter(l => l.type === 'r-l');
+    const linksLU = links.filter(l => l.type === 'l-u');
+
+    // 1. Fase de Varredura (Duração: ~5 segundos)
+    // Aumentamos o número de piscadas e o intervalo entre elas
+    for(let i=0; i<20; i++) {
+        const l = links[Math.floor(Math.random()*links.length)];
+        const el = linkElements.filter(d => d === l);
+        el.classed("active", true); 
+        await wait(150); // Pisca por 150ms
+        el.classed("active", false);
+        await wait(100); // Espera 100ms para a próxima
+    }
+
+    status.innerText = "ESTABELECENDO FLUXO DEFINITIVO";
+    await wait(1000); // Pausa dramática antes da alocação
+
+    // 2. Fase de Alocação (Duração: ~9 segundos)
+    const upIds = ["UP0", "UP1", "UP2", "UP3"];
+    
+    // Garantir BRIGADISTA primeiro
+    const targetUPBrig = upIds[Math.floor(Math.random() * upIds.length)];
+    const brigLinkLU = linksLU.find(l => l.source === "Brigadista" && l.target === targetUPBrig);
+    const brigLinkRL = linksRL.find(l => l.target === "Brigadista");
+
+    // Alocação sequencial lenta para o Brigadista
+    status.innerText = "ALOCANDO BRIGADISTA...";
+    linkElements.filter(d => d === brigLinkRL)
+        .transition().duration(1500).style("stroke-width", "3px")
+        .on("start", function() { d3.select(this).classed("final-flow", true); });
+    await wait(2000);
+
+    linkElements.filter(d => d === brigLinkLU)
+        .transition().duration(1500).style("stroke-width", "3px")
+        .on("start", function() { d3.select(this).classed("final-flow", true); });
+    await wait(2500);
+
+    // Alocar mais um fluxo aleatório (Avião ou Caminhão)
+    const outroModal = ["Avião", "Caminhão"][Math.floor(Math.random()*2)];
+    const outraUP = upIds.filter(id => id !== targetUPBrig)[Math.floor(Math.random()*3)];
+    const extraLU = linksLU.find(l => l.source === outroModal && l.target === outraUP);
+    const extraRL = linksRL.find(l => l.target === outroModal);
+
+    if(extraLU && extraRL) {
+        status.innerText = `ALOCANDO ${outroModal.toUpperCase()}...`;
+        linkElements.filter(d => d === extraRL)
+            .transition().duration(1500).style("stroke-width", "3px")
+            .on("start", function() { d3.select(this).classed("final-flow", true); });
+        await wait(2000);
+
+        linkElements.filter(d => d === extraLU)
+            .transition().duration(1500).style("stroke-width", "3px")
+            .on("start", function() { d3.select(this).classed("final-flow", true); });
+        await wait(2000);
+    }
+
+    status.innerText = "PROCESSO FINALIZADO - ALOCAÇÃO CONCLUÍDA";
+    btn.disabled = false;
+    btn.innerText = "REINICIAR SIMULAÇÃO";
+}
+</script>
+</body>
+</html>
