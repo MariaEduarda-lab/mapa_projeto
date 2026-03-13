@@ -76,16 +76,13 @@ Essa visualização detalha brevemente uma simulação de como o algoritmo funci
 ---
 
 
-## [Título do Mini Projeto 2]
+## Icones Animados e Informativos no Mapa de Ocorrências
 
 
 ### Descrição
 
 
-Descreva o objetivo deste mini projeto, o problema que ele resolve e qual é o seu escopo dentro do projeto maior.
-
-
-
+Essa visualização detalha brevemente no mapa as informações de icones e ocorrências.
 
 ### Visualizações Geradas
 
@@ -95,12 +92,12 @@ Descreva o objetivo deste mini projeto, o problema que ele resolve e qual é o s
 
 | Campo            | Detalhe                              |
 |------------------|--------------------------------------|
-| **Tipo**         | Gráfico de barras / Mapa / Dashboard |
+| **Tipo**         | Mapa |
 | **Fonte de dados** | Nome da base ou tabela utilizada   |
-| **Ferramenta**   | Power BI / Tableau / Python / etc.   |
+| **Ferramenta**   | D3  |
 
 
-**Exemplo de uso:** Descreva um caso de uso prático desta visualização.
+**Exemplo de uso:** Poderá ser utilizado tanto para auxiliar visualmente na apresentação, quanto substituir a tela (ocurrency map) de mapa de occorrências.
 
 
 ---
@@ -111,9 +108,8 @@ Descreva o objetivo deste mini projeto, o problema que ele resolve e qual é o s
 
 | Nome              |
 |-------------------|
-| Nome e sobrenome  |
-|    Nome e sobrenome     |
-|     Nome e sobrenome    |
+| Victor Garcia Dos Santos |
+|    Rafael Ryu Tati Nakahara     |
 
 
 ---
