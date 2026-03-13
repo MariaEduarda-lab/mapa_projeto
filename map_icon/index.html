@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bases D3 - Mapa Incêndios</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0f172a; font-family: sans-serif; }
+    #map { width: 100vw; height: 100vh; }
+    #tooltip {
+      position: absolute;
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      pointer-events: none;
+      display: none;
+      z-index: 600;
+      line-height: 1.8;
+      white-space: nowrap;
+      border: 1px solid rgba(59,130,246,0.4);
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="tooltip"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script>
+const rastreadores = [
+  { id: 1, nome: "Base Alpha", brigadistas: 24, caminhoes: 4, avioes: 2, pos: { lat: -5.53, lng: -45.54 } },
+  { id: 2, nome: "Base Beta",  brigadistas: 18, caminhoes: 3, avioes: 1, pos: { lat: -7.20, lng: -44.30 } },
+  { id: 3, nome: "Base Gamma", brigadistas: 31, caminhoes: 6, avioes: 3, pos: { lat: -4.10, lng: -47.00 } },
+  { id: 4, nome: "Base Delta", brigadistas: 12, caminhoes: 2, avioes: 1, pos: { lat: -8.50, lng: -42.80 } },
+];
+
+const map = L.map("map", { scrollWheelZoom: true }).setView([-5.5324, -45.5489], 6);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "&copy; OpenStreetMap contributors"
+}).addTo(map);
+
+const tooltip = document.getElementById("tooltip");
+const mapEl   = document.getElementById("map");
+
+const wrapper = document.createElement("div");
+wrapper.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;z-index:500;pointer-events:none;";
+mapEl.appendChild(wrapper);
+
+const svg = d3.select(wrapper).append("svg")
+  .attr("width", "100%")
+  .attr("height", "100%")
+  .style("overflow", "visible");
+
+const defs = svg.append("defs");
+
+rastreadores.forEach(r => {
+  const g = defs.append("radialGradient")
+    .attr("id", `grad-${r.id}`)
+    .attr("cx", "40%").attr("cy", "35%").attr("r", "60%");
+  g.append("stop").attr("offset", "0%").attr("stop-color", "#3b82f6");
+  g.append("stop").attr("offset", "100%").attr("stop-color", "#002884");
+});
+
+const flt = defs.append("filter").attr("id", "glow");
+flt.append("feGaussianBlur").attr("stdDeviation", "3").attr("result", "coloredBlur");
+const fm = flt.append("feMerge");
+fm.append("feMergeNode").attr("in", "coloredBlur");
+fm.append("feMergeNode").attr("in", "SourceGraphic");
+
+const R  = 28; 
+const RP = 48;  
+
+function draw() {
+  svg.selectAll("g.base-marker").remove();
+
+  rastreadores.forEach(r => {
+    const pt = map.latLngToContainerPoint([r.pos.lat, r.pos.lng]);
+
+    const g = svg.append("g")
+      .attr("class", "base-marker")
+      .attr("transform", `translate(${pt.x},${pt.y})`);
+
+    const pulse = g.append("circle")
+      .attr("r", R)
+      .attr("fill", "none")
+      .attr("stroke", "#3b82f6")
+      .attr("stroke-width", 2)
+      .attr("opacity", 0.8);
+
+    (function animatePulse() {
+      pulse
+        .attr("r", R).attr("opacity", 0.8)
+        .transition().duration(1800).ease(d3.easeCubicOut)
+        .attr("r", RP).attr("opacity", 0)
+        .on("end", animatePulse);
+    })();
+
+    g.append("circle")
+      .attr("r", R + 4)
+      .attr("fill", "none")
+      .attr("stroke", "#3b82f6")
+      .attr("stroke-width", 1.5)
+      .attr("opacity", 0.4)
+      .attr("filter", "url(#glow)");
+
+    g.append("circle")
+      .attr("r", R)
+      .attr("fill", `url(#grad-${r.id})`)
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 2);
+
+    g.append("polygon")            
+      .attr("points", "0,-14 -12,2 12,2")
+      .attr("fill", "#fff");
+    g.append("rect")                  
+      .attr("x", -9).attr("y", 2)
+      .attr("width", 18).attr("height", 10)
+      .attr("rx", 1).attr("fill", "#fff");
+    g.append("rect")                  
+      .attr("x", -3).attr("y", 4)
+      .attr("width", 6).attr("height", 8)
+      .attr("rx", 1).attr("fill", `url(#grad-${r.id})`);
+
+    const lw = r.nome.length * 7 + 20;
+    const ly = R + 16;
+    g.append("rect")
+      .attr("x", -lw / 2).attr("y", ly - 10)
+      .attr("width", lw).attr("height", 20)
+      .attr("rx", 10)
+      .attr("fill", "#002884")
+      .attr("stroke", "#fff").attr("stroke-width", 1);
+    g.append("text")
+      .attr("y", ly + 5)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#fff")
+      .attr("font-size", "11px")
+      .attr("font-weight", "600")
+      .text(r.nome);
+
+    g.append("circle")
+      .attr("r", R)
+      .attr("fill", "transparent")
+      .style("pointer-events", "all")
+      .style("cursor", "pointer")
+      .on("mouseenter", function(event) {
+        tooltip.innerHTML = `
+          <strong>${r.nome}</strong><br>
+          🧑‍🚒 Brigadistas: ${r.brigadistas}<br>
+          🚒 Caminhões: ${r.caminhoes}<br>
+          ✈️ Aviões: ${r.avioes}
+        `;
+        const rect = mapEl.getBoundingClientRect();
+        tooltip.style.left = (event.clientX - rect.left + 14) + "px";
+        tooltip.style.top  = (event.clientY - rect.top  - 10) + "px";
+        tooltip.style.display = "block";
+      })
+      .on("mousemove", function(event) {
+        const rect = mapEl.getBoundingClientRect();
+        tooltip.style.left = (event.clientX - rect.left + 14) + "px";
+        tooltip.style.top  = (event.clientY - rect.top  - 10) + "px";
+      })
+      .on("mouseleave", function() {
+        tooltip.style.display = "none";
+      });
+  });
+}
+
+draw();
+
+["zoom", "move", "zoomend", "moveend", "viewreset"].forEach(e => map.on(e, draw));
+</script>
+</body>
+</html>
