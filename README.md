@@ -149,7 +149,7 @@ Visão consolidada de todas as equipes envolvidas no projeto.
 | Mini Projeto      | Equipe       |
 |-------------------|----------------------|
 | Tela de carregamento com grafos    | Maria Eduarda, Pedro SIqueira e Thúlio Bacco       |
-| Mini Projeto 2    | Nome da Equipe       |
+| Icones Animados e Informativos no Mapa de Ocorrências   | Victor Garcia Dos Santos, Rafael Ryu Tati Nakahara      |
 | Mini Projeto 3    | Nome da Equipe       |
 
 
