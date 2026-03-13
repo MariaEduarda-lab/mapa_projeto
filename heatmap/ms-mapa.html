@@ -6,11 +6,7 @@
     <title>Mapa de Mato Grosso do Sul - D3.js</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -22,308 +18,219 @@
             padding: 20px;
         }
 
-        h1 {
-            color: #fff;
-            margin-bottom: 10px;
-            text-align: center;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .subtitle {
-            color: #a0a0a0;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .subtitle a {
-            color: #449ddb;
-            text-decoration: none;
-        }
-
-        .subtitle a:hover {
-            text-decoration: underline;
-        }
+        h1 { color: #fff; margin-bottom: 6px; text-align: center; }
+        .subtitle { color: #a0a0a0; margin-bottom: 18px; font-size: 13px; }
+        .subtitle a { color: #fc8d59; text-decoration: none; }
+        .subtitle a:hover { text-decoration: underline; }
 
         .main-layout {
             display: flex;
-            gap: 20px;
+            gap: 16px;
             flex-wrap: wrap;
             justify-content: center;
             align-items: flex-start;
         }
 
         .container {
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            padding: 20px;
+            background: #fafafa;
+            border-radius: 14px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+            padding: 16px;
             max-width: 100%;
         }
 
         .side-panel {
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            padding: 20px;
-            width: 320px;
+            background: #fafafa;
+            border-radius: 14px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+            padding: 16px;
+            width: 300px;
         }
 
-        #map-container {
-            position: relative;
-        }
+        #map-container { position: relative; }
+        #state-map-container { margin-bottom: 12px; }
 
-        #state-map-container {
-            margin-bottom: 15px;
-        }
+        svg { display: block; margin: 0 auto; }
 
-        svg {
-            display: block;
-            margin: 0 auto;
-        }
-
-        .municipio, .state {
+        .municipio {
             stroke: #fff;
             stroke-width: 0.5px;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
 
-        .municipio:hover {
-            stroke: #333;
-            stroke-width: 2px;
-            filter: brightness(0.85);
-        }
-
+        /* Tooltip */
         .tooltip {
             position: absolute;
-            background: rgba(0, 0, 0, 0.85);
-            color: #fff;
-            padding: 10px 15px;
+            background: rgba(15,15,15,0.92);
+            color: #f0f0f0;
+            padding: 10px 14px;
             border-radius: 8px;
             font-size: 13px;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.2s;
+            transition: opacity 0.15s;
             z-index: 1000;
-            max-width: 250px;
+            min-width: 210px;
+            border-left: 4px solid #bd0026;
         }
-
         .tooltip strong {
             display: block;
-            font-size: 15px;
-            margin-bottom: 5px;
-            color: #4CAF50;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #fc8d59;
         }
-
-        .legend {
-            margin-top: 20px;
+        .tt-row {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            justify-content: space-between;
+            margin-bottom: 3px;
             font-size: 12px;
-            color: #666;
         }
+        .tt-row span { color: #aaa; }
+        .tt-row b { color: #fff; }
+        .sem-dados { color: #888; font-style: italic; }
 
-        .legend-color {
-            width: 20px;
-            height: 15px;
-            border-radius: 3px;
-        }
+        /* Legenda (embutida no SVG via D3) */
+        #legend { margin-top: 6px; }
 
+        /* Info panel */
         .info-panel {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f5f5f5;
+            padding: 12px;
+            background: #f0f0f0;
             border-radius: 10px;
             text-align: center;
+            margin-bottom: 12px;
         }
-
-        .info-panel h3 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
+        .info-panel h3 { color: #333; font-size: 13px; margin-bottom: 8px; }
         .stats {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 14px;
             flex-wrap: wrap;
         }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 22px; font-weight: bold; color: #bd0026; }
+        .stat-value.blue { color: #2171b5; }
+        .stat-label { font-size: 11px; color: #666; }
 
-        .stat-item {
-            text-align: center;
+        /* Fire stats */
+        .fire-stats {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3e0;
+            border-radius: 8px;
+            border-left: 4px solid #bd0026;
         }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2196F3;
-        }
-
-        .stat-label {
+        .fire-stats h4 { font-size: 12px; color: #8b0000; margin-bottom: 8px; }
+        .fire-row {
+            display: flex;
+            justify-content: space-between;
             font-size: 12px;
-            color: #666;
+            margin-bottom: 4px;
         }
+        .fire-row span { color: #555; }
+        .fire-row b { color: #bd0026; }
 
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #666;
-        }
-
-        .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #2196F3;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error {
-            color: #f44336;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .data-source {
+        /* Symbol styling */
+        .bubble-info {
             margin-top: 15px;
             padding: 10px;
-            background: #e8f4fd;
+            background: #f0f0f0;
             border-radius: 8px;
+            text-align: center;
+        }
+        .bubble-info h4 { font-size: 13px; color: #333; margin-bottom: 8px; }
+        .bubble-sample-row { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; color:#555;}
+        .bubble-circle { border-radius: 50%; background: rgba(229,57,53,0.55); border:1px solid #fff; }
+
+
+        /* Data source */
+        .data-source {
+            margin-top: 10px;
+            padding: 8px;
+            background: #e8f4fd;
+            border-radius: 7px;
             font-size: 11px;
             color: #555;
         }
+        .data-source a { color: #2196F3; }
 
-        .data-source a {
-            color: #2196F3;
+        /* Loading */
+        .loading { text-align: center; padding: 60px 40px; color: #666; }
+        .loading-spinner {
+            border: 4px solid #eee;
+            border-top: 4px solid #bd0026;
+            border-radius: 50%;
+            width: 38px; height: 38px;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 12px;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .color-legend {
-            margin-top: 15px;
-        }
-
-        .color-legend h4 {
-            font-size: 13px;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .color-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 5px;
-            font-size: 12px;
-        }
-
-        .color-box {
-            width: 25px;
-            height: 18px;
-            border-radius: 3px;
-            border: 1px solid #ddd;
-        }
+        .error { color: #d32f2f; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
-    <h1>🗺️ Mapa de Mato Grosso do Sul</h1>
+    <h1>Heatmap de Incêndios — MS</h1>
     <p class="subtitle">
-        Dados: <a href="https://github.com/adolfoguimaraes/mapas_dataset" target="_blank">adolfoguimaraes/mapas_dataset</a>
+        Dados geográficos: <a href="https://github.com/adolfoguimaraes/mapas_dataset" target="_blank">adolfoguimaraes/mapas_dataset</a>
     </p>
-    
+
     <div class="main-layout">
         <!-- Painel lateral -->
         <div class="side-panel">
             <div id="state-map-container"></div>
-            
-            <div class="info-panel" id="info-panel" style="display: none;">
-                <h3>📊 Estatísticas</h3>
+
+            <div class="info-panel" id="info-panel" style="display:none">
+                <h3>📊 Municípios de MS</h3>
                 <div class="stats">
                     <div class="stat-item">
-                        <div class="stat-value" id="total-municipios">-</div>
-                        <div class="stat-label">Municípios MS</div>
+                        <div class="stat-value blue" id="total-municipios">-</div>
+                        <div class="stat-label">Total municípios</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value" id="total-brasil">-</div>
-                        <div class="stat-label">Total Brasil</div>
-                    </div>
-                </div>
-                <div class="stats" style="margin-top: 15px;">
-                    <div class="stat-item">
-                        <div class="stat-value">MS</div>
-                        <div class="stat-label">Sigla</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">50</div>
-                        <div class="stat-label">Código IBGE</div>
+                        <div class="stat-value" id="municipios-afetados">-</div>
+                        <div class="stat-label">Com incêndios</div>
                     </div>
                 </div>
             </div>
 
-            <div class="color-legend">
-                <h4>Cores Acessíveis (padrão do autor)</h4>
-                <div class="color-item">
-                    <div class="color-box" style="background: #F0F0F0;"></div>
-                    <span>Nível 0 - Sem dados</span>
+            <div class="fire-stats" id="fire-stats" style="display:none">
+                <h4>🔥 Dados de Incêndio</h4>
+                <div class="fire-row">
+                    <span>Total de ocorrências</span>
+                    <b id="total-ocorrencias">-</b>
                 </div>
-                <div class="color-item">
-                    <div class="color-box" style="background: #267800;"></div>
-                    <span>Nível 1</span>
+                <div class="fire-row">
+                    <span>Área total queimada</span>
+                    <b id="total-area">-</b>
                 </div>
-                <div class="color-item">
-                    <div class="color-box" style="background: #449ddb;"></div>
-                    <span>Nível 2</span>
+                <div class="fire-row">
+                    <span>Municípios no Brasil</span>
+                    <b id="total-brasil">-</b>
                 </div>
-                <div class="color-item">
-                    <div class="color-box" style="background: #fdb462;"></div>
-                    <span>Nível 3</span>
+            </div>
+
+            <div class="bubble-info" id="legend" style="display:none">
+                <h4>Mapa de Bolhas (Volume)</h4>
+                <div class="bubble-sample-row">
+                    <div class="bubble-circle" style="width: 10px; height: 10px;"></div>
+                    <div class="bubble-circle" style="width: 15px; height: 15px;"></div>
+                    <div class="bubble-circle" style="width: 22px; height: 22px;"></div>
+                </div>
+                <p style="font-size:10px; color:#777; margin-top:8px;">O tamanho aumenta com focos próximos</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="map-container">
+                <div id="loading" class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Carregando dados...</p>
                 </div>
             </div>
 
             <div class="data-source">
-                <strong>Fonte dos dados:</strong><br>
-                <a href="https://github.com/adolfoguimaraes/mapas_dataset" target="_blank">GitHub - mapas_dataset</a><br>
-                Arquivos GeoJSON do IBGE
-            </div>
-        </div>
-
-        <!-- Mapa principal -->
-        <div class="container">
-            <div id="map-container">
-                <div class="loading" id="loading">
-                    <div class="loading-spinner"></div>
-                    <p>Carregando mapa...</p>
-                </div>
-            </div>
-            
-            <div class="legend" id="legend" style="display: none;">
-                <span style="color: #666; font-size: 12px;">Escala de cores:</span>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #c6dbef;"></div>
-                    <span>Baixa</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #6baed6;"></div>
-                    <span>Média</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #2171b5;"></div>
-                    <span>Alta</span>
-                </div>
+                Fonte: CSV local (coordenadas de UPs + ocorrências de incêndio) e malhas públicas (IBGE/mapas_dataset).
             </div>
         </div>
     </div>
