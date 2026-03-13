@@ -9,25 +9,9 @@
 
 1. [Visão Geral](#visão-geral)
 2. [Mini Projeto 1 - Tela de carregamento com grafos](#mini-projeto-1)
-3. [Mini Projeto 2 - Nome do Projeto](#mini-projeto-2)
+3. [Mini Projeto 2 - Icones Animados e Informativos no Mapa de Ocorrências](#mini-projeto-2)
 4. [Mini Projeto 3 - Nome do Projeto](#mini-projeto-3)
-5. [Equipe Projeto 1 - ](#equipes-responsáveis)
-
-
----
-
-
-## Visão Geral
-
-
-Breve descrição do objetivo geral do projeto e como os três mini projetos se relacionam entre si. Inclua aqui o contexto de negócio, os problemas que estão sendo resolvidos e os principais resultados esperados.
-
-
-| Campo              | Detalhe                          |
-|--------------------|----------------------------------|
-| **Projeto Pai**    | Nome do Projeto Principal        |
-| **Período**        | Mês/Ano — Mês/Ano                |
-| **Repositório**    | [Link do repositório](#)         |
+5. [Equipe Projeto 1](#equipes-responsáveis)
 
 
 ---
@@ -87,7 +71,7 @@ Essa visualização detalha brevemente no mapa as informações de icones e ocor
 ### Visualizações Geradas
 
 
-#### Visualização 2 — Nome da Visualização
+#### Visualização 2 — Icones Animados e Informativos no Mapa de Ocorrências
 
 
 | Campo            | Detalhe                              |
